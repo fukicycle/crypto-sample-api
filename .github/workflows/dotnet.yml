@@ -124,7 +124,7 @@ jobs:
           body: |
             - Change design
             - Bug fix
-          draft: true
+          draft: false
           prerelease: false
           artifacts: "${{ env.app_x64_framework_name }}.zip, ${{ env.app_x64_self_name }}.zip"
 
