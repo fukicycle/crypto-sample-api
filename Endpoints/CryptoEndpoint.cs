@@ -1,51 +1,48 @@
 ﻿using crypto_api.DTO;
 using crypto_api.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace crypto_api.Endpoints;
 
-public class CryptoEndpoint : IEndpoint
+public class CryptoEndpoint : EndpointFactory
 {
-    private static CryptoEndpoint _instance = new CryptoEndpoint();
-    private CryptoEndpoint() { }
-    public static IEndpoint Initialize()
-    {
-        return _instance;
-    }
-
-    public void Register(WebApplication app)
+    protected override void Register(WebApplication app)
     {
         var baseApp = app.MapGroup("/api/v1");
 
-        baseApp.MapPost("/encrypt", (ICryptoService cryptoService, CryptoDTO cryptoDTO) =>
-        {
-            if (string.IsNullOrEmpty(cryptoDTO.Content))
-            {
-                return Results.BadRequest();
-            }
-            try
-            {
-                return Results.Ok(cryptoService.Encrypt(cryptoDTO.Content));
-            }
-            catch (Exception e)
-            {
-                return Results.Problem(e.Message);
-            }
-        });
+        baseApp.MapPost("/encrypt", Encrypt);
+        baseApp.MapPost("/decrypt", Decrypt);
+    }
 
-        baseApp.MapPost("/decrypt", (ICryptoService cryptoService, CryptoDTO cryptoDTO) =>
+    private IResult Encrypt([FromServices] ICryptoService cryptoService, [FromBody] CryptoDTO cryptoDTO)
+    {
+        if (string.IsNullOrEmpty(cryptoDTO.Content))
         {
-            if (string.IsNullOrEmpty(cryptoDTO.Content))
-            {
-                return Results.BadRequest();
-            }
-            try
-            {
-                return Results.Ok(cryptoService.Decrypt(cryptoDTO.Content));
-            }
-            catch (Exception e)
-            {
-                return Results.Problem(e.Message);
-            }
-        });
+            return TypedResults.BadRequest();
+        }
+        try
+        {
+            return TypedResults.Ok(cryptoService.Encrypt(cryptoDTO.Content));
+        }
+        catch (Exception e)
+        {
+            return TypedResults.Problem(e.Message);
+        }
+    }
+
+    private IResult Decrypt([FromServices] ICryptoService cryptoService, [FromBody] CryptoDTO cryptoDTO)
+    {
+        if (string.IsNullOrEmpty(cryptoDTO.Content))
+        {
+            return TypedResults.BadRequest();
+        }
+        try
+        {
+            return TypedResults.Ok(cryptoService.Decrypt(cryptoDTO.Content));
+        }
+        catch (Exception e)
+        {
+            return TypedResults.Problem(e.Message);
+        }
     }
 }

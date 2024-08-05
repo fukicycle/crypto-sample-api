@@ -8,7 +8,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ICryptoService, PrimeCrytpoService>();
 
 var app = builder.Build();
-CryptoEndpoint.Initialize().Register(app);
+EndpointFactory.RegisterAll(app);
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
